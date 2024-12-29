@@ -37,20 +37,23 @@ keyInput.Parent = frame
 -- Link to be copied
 local siteLink = "https://pnd.link/MM2" -- Put your desired link here
 
--- When the Get Key button is clicked, copy the link to clipboard
+-- When the Get Key button is clicked, copy the link to clipboard and change button text
 getKeyButton.MouseButton1Click:Connect(function()
-    setclipboard(siteLink) -- Copy the link to the clipboard
-    print("Site link copied to clipboard: " .. siteLink)
+    pcall(function()
+        setclipboard(siteLink) -- Copy the link to the clipboard
+        print("Site link copied to clipboard: " .. siteLink)
+        getKeyButton.Text = "Link Copied"  -- Change button text after copying the link
+    end)
 end)
 
 -- When the Check Key button is clicked, perform validation
 checkKeyButton.MouseButton1Click:Connect(function()
     if keyInput.Text == "MM2ZAQ" then
-        print("Key is correct, script is being executed and screen is closing...")
-        
+        print("Key is correct, script is being executed and screen will close in 5 seconds...")
+
         -- Execute the script using loadstring
         local success, errorMessage = pcall(function()
-            loadstring(game:HttpGet("loadstring(game:HttpGet('https://raw.githubusercontent.com/vertex-peak/vertex/refs/heads/main/loadstring'))()"))()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/vertex-peak/vertex/refs/heads/main/loadstring", true))()
         end)
 
         if success then
@@ -59,9 +62,33 @@ checkKeyButton.MouseButton1Click:Connect(function()
             warn("Failed to execute the script: " .. errorMessage)
         end
 
-        -- Close the GUI
-        screenGui:Destroy()
+        -- Delay the GUI closing by 5 seconds
+        local success, err = pcall(function()
+            task.delay(5, function()
+                screenGui:Destroy()
+            end)
+        end)
+
+        -- If the screen fails to close, show a warning message
+        if not success then
+            warn("Failed to close the screen: " .. err)
+        end
     else
         print("Incorrect key!")
     end
+end)
+
+-- Add a close button in the top right corner
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 50, 0, 50)
+closeButton.Position = UDim2.new(1, -55, 0, 5)
+closeButton.Text = "X"
+closeButton.TextSize = 25
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+closeButton.Parent = screenGui
+
+-- Close the GUI when the close button is clicked
+closeButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+    print("GUI closed by user.")
 end)
